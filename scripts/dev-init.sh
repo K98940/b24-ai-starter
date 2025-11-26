@@ -131,8 +131,11 @@ fi
 
 print_success "SERVER_HOST обновлен в .env: $SERVER_HOST"
 
-# Удаляем неиспользуемые папки бэкендов
-print_header "🗂 Очистка неиспользуемых бэкендов"
+# Удаляем неиспользуемые папки бэкендов и инструкций
+print_header "🗂 Очистка неиспользуемых бэкендов и инструкций"
+
+# Очищаем папки бэкендов
+print_warning "Очистка неиспользуемых папок бэкендов..."
 cd backends
 
 for backend_dir in php python node; do
@@ -143,6 +146,23 @@ for backend_dir in php python node; do
         rm -rf "$backend_dir"
         
         print_success "Папка backends/$backend_dir удалена"
+    fi
+done
+
+cd ..
+
+# Очищаем папки инструкций для неиспользуемых бэкендов
+print_warning "Очистка неиспользуемых папок инструкций..."
+cd instructions
+
+for instruction_dir in php python node; do
+    if [ "$instruction_dir" != "$BACKEND" ] && [ -d "$instruction_dir" ]; then
+        print_warning "Удаляем папку instructions/$instruction_dir..."
+
+        # если не хочется удалять, можно закомментировать следующую строку  
+        rm -rf "$instruction_dir"
+        
+        print_success "Папка instructions/$instruction_dir удалена"
     fi
 done
 
@@ -434,6 +454,7 @@ echo "   - Initial Installation path: $(grep VIRTUAL_HOST .env | cut -d"'" -f2)/
 echo "   - Permissions: crm, user_brief, pull, placement, userfieldconfig"
 echo ""
 echo "2. После создания приложения, получите CLIENT_ID и CLIENT_SECRET и обновите их в .env"
+echo "3. Перезапустите контейнеры для применения изменений: make down && make dev-$BACKEND"
 echo ""
 
 if [ "$BACKEND" = "python" ]; then
